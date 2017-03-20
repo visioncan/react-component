@@ -1,0 +1,10 @@
+{
+  "extends": ["standard", "standard-jsx"],
+  "parser": "babel-eslint",
+  "rules": {
+    "jsx-quotes": 0
+  },
+  "env": {
+    "jest": true
+  }
+}
