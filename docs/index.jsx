@@ -7,7 +7,7 @@ import './main.css'
 const documentationImports = {
   Demo: require('./Demo')
 }
-const title = `${NAME} v${VERSION}` // eslint-disable-line no-undef
+const title = `${process.env.PKG_NAME} v${process.env.PKG_VERSION}`
 const pages = [
   {
     path: '/',

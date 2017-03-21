@@ -5,6 +5,7 @@ import SystemBellPlugin from 'system-bell-webpack-plugin'
 import merge from 'webpack-merge'
 import packageImporter from 'node-sass-package-importer'
 import autoprefixer from 'autoprefixer'
+import { load as loadenv } from 'dotenv'
 
 const pkg = require('./package.json')
 
@@ -25,6 +26,19 @@ const config = {
 
 process.env.BABEL_ENV = TARGET
 
+const genenv = (other = {}) => {
+  const defaults = {}
+  const customEnv = loadenv().parsed
+  const envObject = Object.assign(defaults, customEnv, other)
+  let envVars = {}
+
+  Object.keys(envObject).forEach(key => {
+    envVars[`process.env.${key}`] = JSON.stringify(process.env[key] || envObject[key])
+  })
+
+  return envVars
+}
+
 const common = {
   resolve: {
     extensions: ['.js', '.jsx', '.css', '.scss', '.png']
@@ -40,7 +54,8 @@ const common = {
           config.paths.src
         ],
         options: {
-          configFile: path.resolve('./.eslintrc')
+          configFile: path.resolve('./.eslintrc'),
+          emitWarning: true
         }
       },
       {
@@ -78,11 +93,11 @@ const siteCommon = {
       title: pkg.name,
       appMountId: 'app'
     }),
-    new webpack.DefinePlugin({
-      NAME: JSON.stringify(pkg.name),
-      USER: JSON.stringify(pkg.user),
-      VERSION: JSON.stringify(pkg.version)
-    }),
+    new webpack.DefinePlugin(genenv({
+      PKG_NAME: pkg.name,
+      PKG_USER: pkg.user,
+      PKG_VERSION: pkg.version
+    })),
     new webpack.LoaderOptionsPlugin({
       options: {
         postcss: [
@@ -100,9 +115,9 @@ if (TARGET === 'start') {
       docs: [config.paths.docs]
     },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': '"development"'
-      }),
+      new webpack.DefinePlugin(genenv({
+        NODE_ENV: 'development'
+      })),
       new webpack.HotModuleReplacementPlugin()
     ],
     module: {
